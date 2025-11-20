@@ -92,14 +92,19 @@ def bulk_insert_staging(rows, db):
 
 
 def merge_staging_to_products(db, file_id):
-    db.execute(
-    text("""
-        INSERT INTO products (file_id, sku, name, description, price, quantity, category)
-        SELECT :file_id, sku, name, description, price, quantity, category
-        FROM staging_products
-    """),
-    {"file_id": file_id}
-)
+    db.execute(text("""
+    INSERT INTO products (file_id, sku, name, description, price, quantity, category)
+    SELECT :file_id, sku, name, description, price, quantity, category
+    FROM staging_products
+    ON CONFLICT (sku)
+    DO UPDATE SET
+        file_id = EXCLUDED.file_id,
+        name = EXCLUDED.name,
+        description = EXCLUDED.description,
+        price = EXCLUDED.price,
+        quantity = EXCLUDED.quantity,
+        category = EXCLUDED.category;
+"""), {"file_id": file_id})
 
     db.execute(text("TRUNCATE staging_products"))
 

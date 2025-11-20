@@ -9,22 +9,14 @@ def get_celery_app() -> Celery:
     if celery_app_instance is None:
         celery_app_instance = Celery(
             "fulfil",
-            include=["app.workers.tasks"],
+            include=["app.workers.tasks"], 
         )
 
         celery_app_instance.conf.update(
             broker_url=settings.CELERY_BROKER_URL,
             result_backend=settings.CELERY_RESULT_BACKEND,
-
-            # Explicit SSL config (removes warning)
-            broker_use_ssl={
-                "ssl_cert_reqs": 0
-            },
-            redis_backend_use_ssl={
-                "ssl_cert_reqs": 0
-            },
-
-            # Queue settings
+            broker_use_ssl={"ssl_cert_reqs": "CERT_NONE"},
+            redis_backend_use_ssl={"ssl_cert_reqs": "CERT_NONE"},
             task_routes={"app.workers.tasks.*": {"queue": "csv-jobs"}},
             task_default_queue="csv-jobs",
         )
