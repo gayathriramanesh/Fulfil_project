@@ -8,14 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 
 
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    init_db()
-    yield
-
-
-app = FastAPI(title=settings.PROJECT_NAME,lifespan=lifespan)
+app = FastAPI(title=settings.PROJECT_NAME)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
